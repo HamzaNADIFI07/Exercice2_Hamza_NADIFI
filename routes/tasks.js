@@ -9,17 +9,17 @@ function tasks_with_index() {
   return tasks.map((t, i) => ({ index: i + 1, ...t.to_dict() }));
 }
 
-// GET /health
+// Vérification de l’état de l’API
 router.get("/health", (req, res) => {
   res.json({ status: "ok", message: "L'API fonctionne" });
 });
 
-// GET /api/tasks
+// Liste toutes les tâches
 router.get("/api/tasks", (req, res) => {
   res.json({ tasks: tasks_with_index() });
 });
 
-// POST /api/tasks  { title }
+// Crée une nouvelle tâche
 router.post("/api/tasks", (req, res) => {
   const data = req.body || {};
   const title = data.title ?? "";
@@ -38,7 +38,7 @@ router.post("/api/tasks", (req, res) => {
   }
 });
 
-// GET /api/tasks/:task_id
+// Récupère une tâche par ID
 router.get("/api/tasks/:task_id", (req, res) => {
   const task_id = Number(req.params.task_id);
   try {
@@ -54,7 +54,7 @@ router.get("/api/tasks/:task_id", (req, res) => {
 });
 
 
-// DELETE /api/tasks/:task_id
+// Supprime une tâche par ID
 router.delete("/api/tasks/:task_id", (req, res) => {
   const task_id = Number(req.params.task_id);
   try {
