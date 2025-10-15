@@ -1,5 +1,5 @@
 import express from "express";
-import tasksRouter from "./routes/tasks.js";
+import tasksRouter from "./routes/taskRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5050;
