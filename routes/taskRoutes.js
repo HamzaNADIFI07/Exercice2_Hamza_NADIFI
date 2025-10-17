@@ -38,20 +38,7 @@ router.post("/api/tasks", (req, res) => {
   }
 });
 
-// Récupère une tâche par ID
-router.get("/api/tasks/:task_id", (req, res) => {
-  const task_id = Number(req.params.task_id);
-  try {
-    const t = todo.get_task(task_id);
-    res.json(t.to_dict());
-  } catch (e) {
-    if (e.code === "NOT_FOUND") {
-      return res.status(404).json({ error: `Tâche id=${task_id} introuvable.` });
-    }
-    console.error(e);
-    res.status(500).json({ error: "Erreur serveur" });
-  }
-});
+
 
 
 // Supprime une tâche par ID
