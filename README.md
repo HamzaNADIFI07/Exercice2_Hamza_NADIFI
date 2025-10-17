@@ -31,56 +31,14 @@ cd Exercice2_Hamza_NADIFI
 ```bash
 npm install
 ```
-4. Configurer la base PostgreSQL (local, sans Docker)
-**Version MacOS**
-```bash
-brew install # brew update
-```
-```bash
-brew install postgresql@16
-```
-```bash
-brew services start postgresql@16
-```
-**Créer l’utilisateur, la base et la table :**
+4. Configurer la base PostgreSQL
+
+Vous lancer la commande suivante en remplissant les champs demandés:
 
 ```bash
-psql -h 127.0.0.1 -p 5432 -U $(whoami) -d postgres
+npm run db:setup 
 ```
 
-
-- Pour créer le role :
-```bash
-CREATE ROLE todo WITH LOGIN PASSWORD 'secret';
-```
-```bash
-CREATE DATABASE todo OWNER todo;
-```
-```bash
-\c todo todo
-```
-```bash
-ALTER SCHEMA public OWNER TO todo;
-```
-
-
-- Pour créer le schéma
-```bash
-CREATE TABLE IF NOT EXISTS tasks (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-```
-```bash
-\q
-```
-5. Configurer les variables d’environnement
-```bash
-PORT=5050
-NODE_ENV=development
-DATABASE_URL=postgres://todo:secret@127.0.0.1:5432/todo
-```
 6. Démarrage en production
 ```bash
 npm run start
