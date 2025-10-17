@@ -35,25 +35,44 @@ npm install
 **Version MacOS**
 ```bash
 brew install # brew update
+```
+```bash
 brew install postgresql@16
+```
+```bash
 brew services start postgresql@16
 ```
 **Créer l’utilisateur, la base et la table :**
+
 ```bash
 psql -h 127.0.0.1 -p 5432 -U $(whoami) -d postgres
+```
 
--- Dans psql :
+
+- Pour créer le role :
+```bash
 CREATE ROLE todo WITH LOGIN PASSWORD 'secret';
+```
+```bash
 CREATE DATABASE todo OWNER todo;
+```
+```bash
 \c todo todo
+```
+```bash
 ALTER SCHEMA public OWNER TO todo;
+```
 
--- Schéma
+
+- Pour créer le schéma
+```bash
 CREATE TABLE IF NOT EXISTS tasks (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+```
+```bash
 \q
 ```
 5. Configurer les variables d’environnement
@@ -63,7 +82,6 @@ NODE_ENV=development
 DATABASE_URL=postgres://todo:secret@127.0.0.1:5432/todo
 ```
 6. Lancer le serveur Express :
-
 ```bash
 npm run dev
 ```
@@ -72,7 +90,7 @@ npm run dev
 
 ## Utilisation
 
-1. Vérifie que l’API répond :
+1. Vérifier que l’API répond :
 ```bash
 curl http://127.0.0.1:5050/health
 ```
