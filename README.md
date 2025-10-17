@@ -114,7 +114,6 @@ curl -X POST http://127.0.0.1:5050/api/tasks      -H "Content-Type: application/
 ```bash
 curl -X DELETE http://127.0.0.1:5050/api/tasks/1
 ```
-
 ---
 
 ## Structure du projet
