@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 set -euo pipefail
 echo "=== PostgreSQL setup (local, sans Docker) ==="
 
@@ -75,7 +74,7 @@ unset PGPASSWORD
 # 6) Mettre à jour .env
 DATABASE_URL="postgres://${DBUSER}:${DBPASS}@${DB_HOST}:${DB_PORT}/${DBNAME}"
 cat > ./.env <<EOF
-PORT=5000
+PORT=5050
 NODE_ENV=development
 DB_PROVIDER=postgres
 DATABASE_URL=${DATABASE_URL}
