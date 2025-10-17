@@ -31,24 +31,60 @@ cd Exercice2_Hamza_NADIFI
 ```bash
 npm install
 ```
-4. Configurer la base PostgreSQL
+4. Configurer la base de données
 
-Vous lancer la commande suivante en remplissant les champs demandés:
+- Si **PostgreSQL**:
+
+    - Lancer PostgreSQL
+```bash
+brew services start postgresql@16
+```
+    - Vous lancer la commande suivante en remplissant les champs demandés:
 
 ```bash
 npm run db:setup 
+```
+
+- Si **MongoDB** :
+    - Installer MongoDB:
+
+```bash
+brew install mongodb-community@8.0  #Pour MacOs
+
+```
+    - Lancer MongoDB:
+
+```bash
+brew services start mongodb-community@8.0
+```
+    - Créer le fichier .env et le remplire avec:
+```bash
+PORT=5050
+
+NODE_ENV=development
+
+DB_PROVIDER=mongo
+
+MONGODB_URI=mongodb://127.0.0.1:27017/todo
 ```
 
 6. Démarrage en production
 ```bash
 npm run start
 ```
-
-
 7. Lancer le serveur Express :
 ```bash
 npm run dev
 ```
+8. Visualiser les données:
+```bash
+mongosh "mongodb://127.0.0.1:27017/todo"
+```
+```bash
+db.tasks.find().pretty()
+```
+
+
 
 ---
 
@@ -94,7 +130,8 @@ EXERCICE2_HAMZA_NADIFI/
 │   ├── routes/
 │   │   └── taskRoutes.js       # Routes : gère les endpoints de l’API
 │   └── config/
-│       └── db.js               # Connexion PostgreSQL (pg Pool)
+│       └── db.js               # Connexion PostgreSQL ou MongoDB
+│       └── db_setup.sh         # Configuration de PostgreSQL
 ├── package.json                # Dépendances et scripts
 ├── .env                        # Variables d’environnement (non commité)
 └── README.md
@@ -110,7 +147,6 @@ Le projet respecte le modèle **MVC (Model–View–Controller)** :
 | Couche         | Rôle                                  | Exemple                                           |
 | -------------- | ------------------------------------- | ------------------------------------------------- |
 | **Model**      | Gère les données et la logique métier | `Task`, structure et transformation des données   |
-| **View**       | (Non applicable ici) — pas d’IHM CLI  | Les réponses JSON remplacent la vue terminal      |
 | **Controller** | Fait le lien entre Model et Routes    | `ToDoController` (requêtes SQL via pg)   |
 
 
