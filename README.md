@@ -110,6 +110,5 @@ Le projet respecte le modèle **MVC (Model–View–Controller)** :
 #### Crée une nouvelle tâche
 ![new](./assets/addTask.png)
 
-
 #### Supprime une tâche par ID
 ![delete](./assets/deleteTaskById.png)
