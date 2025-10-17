@@ -1,41 +1,62 @@
-import { Task } from "../../models/Task.js";
+import { query } from "../config/db.js";
+
+const ERR = {
+  EMPTY_TITLE: "Le titre ne peut pas être vide.",
+  NOT_FOUND:   "Tâche introuvable.",
+};
 
 export class ToDoController {
-  constructor() {
-    this.next_id = 1;
-    this.tasks = [];
-  }
-  // Liste toutes les tâches
-  list_tasks() {
-    return [...this.tasks];
-  }
-  // Trouve l'index d'une tâche par son id
-  _find_index_by_id(task_id) {
-    return this.tasks.findIndex((t) => t.id === task_id);
-  }
-  // Crée une nouvelle tâche
-  add_task(title) {
-    title = (title || "").trim();
-    if (!title) {
-      const err = new Error("Le titre ne peut pas être vide.");
-      err.code = "VALUE_ERROR";
-      throw err;
-    }
-    const new_task = new Task({ title, id: this.next_id });
-    this.tasks.push(new_task);
-    this.next_id += 1;
-    return new_task;
+
+  // Liste toutes les tâches (ordonnées par created_at ASC)
+  async list_tasks() {
+    const { rows } = await query(
+      `SELECT title, to_char(created_at,'YYYY-MM-DD HH24:MI:SS') AS created_at
+       FROM tasks
+       ORDER BY created_at ASC`
+    );
+    return rows;
   }
 
-  // Supprime une tâche par ID
-  delete_task(task_id) {
-    const idx = this._find_index_by_id(task_id);
-    if (idx < 0) {
-      const err = new Error("Tâche introuvable.");
-      err.code = "NOT_FOUND";
-      throw err;
+  // Ajoute une tâche
+  async add_task(title) {
+    title = (title || "").trim();
+    if (!title) {
+      const e = new Error(ERR.EMPTY_TITLE);
+      e.code = "VALUE_ERROR";
+      throw e;
     }
-    const removed = this.tasks.splice(idx, 1)[0];
-    return removed.title;
+    const { rows } = await query(
+      `INSERT INTO tasks(title) VALUES ($1)
+       RETURNING title, to_char(created_at,'YYYY-MM-DD HH24:MI:SS') AS created_at`,
+      [title]
+    );
+    return rows[0];
+  }
+
+
+  // Supprime une tâche
+  async delete_task(index1) {
+    const i0 = Number(index1) - 1;
+    if (!Number.isInteger(i0) || i0 < 0) {
+      const e = new Error(ERR.NOT_FOUND);
+      e.code = "NOT_FOUND";
+      throw e;
+    }
+    // trouver l'id
+    const idRes = await query(
+      `SELECT id, title FROM tasks
+       ORDER BY created_at ASC
+       OFFSET $1 LIMIT 1`,
+      [i0]
+    );
+    const row = idRes.rows[0];
+    if (!row) {
+      const e = new Error(ERR.NOT_FOUND);
+      e.code = "NOT_FOUND";
+      throw e;
+    }
+
+    await query(`DELETE FROM tasks WHERE id=$1`, [row.id]);
+    return row.title;
   }
 }
