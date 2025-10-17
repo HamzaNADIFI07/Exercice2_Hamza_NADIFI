@@ -81,7 +81,13 @@ PORT=5050
 NODE_ENV=development
 DATABASE_URL=postgres://todo:secret@127.0.0.1:5432/todo
 ```
-6. Lancer le serveur Express :
+6. Démarrage en production
+```bash
+npm run start
+```
+
+
+7. Lancer le serveur Express :
 ```bash
 npm run dev
 ```
