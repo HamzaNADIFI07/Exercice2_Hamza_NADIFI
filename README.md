@@ -10,7 +10,6 @@ Aucune base de données : les données sont conservées en mémoire pendant l’
 
 * Ajouter une nouvelle tâche  
 * Afficher la liste des tâches  
-* Récupérer une tâche par ID  
 * Supprimer une tâche  
 * Endpoint de vérification de l’état du serveur (`/health`)
 
@@ -110,9 +109,6 @@ Le projet respecte le modèle **MVC (Model–View–Controller)** :
 
 #### Crée une nouvelle tâche
 ![new](./assets/addTask.png)
-
-#### Récupère une tâche par ID
-![get](./assets/getTaskById.png)
 
 
 #### Supprime une tâche par ID
