@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "nodemon src/server.js",
         "start": "node src/server.js",
-        "db:setup": "bash ./src/config/db_setup.sh",
+        "db:setup": "bash ./src/config/db_setup.sh"
     },
     "dependencies": {
         "dotenv": "^17.2.3",
