@@ -5,7 +5,9 @@
     "main": "src/server.js",
     "scripts": {
         "dev": "nodemon src/server.js",
-        "start": "node src/server.js"
+        "start": "node src/server.js",
+        "db:setup": "bash ./src/config/db_setup.sh",
+        "db:schema": "psql \"$DATABASE_URL\" -f ./src/config/schema.sql"
     },
     "dependencies": {
         "dotenv": "^17.2.3",
