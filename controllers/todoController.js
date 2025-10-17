@@ -26,16 +26,7 @@ export class ToDoController {
     this.next_id += 1;
     return new_task;
   }
-  // Récupère une tâche par ID
-  get_task(task_id) {
-    const idx = this._find_index_by_id(task_id);
-    if (idx < 0) {
-      const err = new Error("Tâche introuvable.");
-      err.code = "NOT_FOUND";
-      throw err;
-    }
-    return this.tasks[idx];
-  }
+
   // Supprime une tâche par ID
   delete_task(task_id) {
     const idx = this._find_index_by_id(task_id);
