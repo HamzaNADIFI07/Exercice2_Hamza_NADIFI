@@ -2,7 +2,7 @@
 
 Une application **API REST** développée avec **Express.js (Node.js)** pour gérer ta liste de tâches depuis le navigateur ou via des requêtes HTTP.  
 L’architecture suit le modèle **MVC (Model–View–Controller)**.  
-Aucune base de données : les données sont conservées en mémoire pendant l’exécution.
+**Persistance des données : PostgreSQL** (accès via le driver `pg`). Les tâches sont exposées **par index**.
 
 ---
 
@@ -31,8 +31,38 @@ cd Exercice2_Hamza_NADIFI
 ```bash
 npm install
 ```
+4. Configurer la base PostgreSQL (local, sans Docker)
+**Version MacOS**
+```bash
+brew install # brew update
+brew install postgresql@16
+brew services start postgresql@16
+```
+**Créer l’utilisateur, la base et la table :**
+```bash
+psql -h 127.0.0.1 -p 5432 -U $(whoami) -d postgres
 
-4. Lancer le serveur Express :
+-- Dans psql :
+CREATE ROLE todo WITH LOGIN PASSWORD 'secret';
+CREATE DATABASE todo OWNER todo;
+\c todo todo
+ALTER SCHEMA public OWNER TO todo;
+
+-- Schéma
+CREATE TABLE IF NOT EXISTS tasks (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+\q
+```
+5. Configurer les variables d’environnement
+```bash
+PORT=5050
+NODE_ENV=development
+DATABASE_URL=postgres://todo:secret@127.0.0.1:5432/todo
+```
+6. Lancer le serveur Express :
 
 ```bash
 npm run dev
@@ -73,15 +103,20 @@ curl -X DELETE http://127.0.0.1:5050/api/tasks/1
 
 ```
 EXERCICE2_HAMZA_NADIFI/
-├── app.js                     # Point d'entrée principal du serveur Express
-├── models/
-│   └── Task.js                # Model : définit la classe Task
-├── controllers/
-│   └── todoController.js      # Controller : logique métier (ajout, maj, suppression)
-├── routes/
-│   └── tasks.js               # Routes : gère les endpoints de l’API
-├── package.json               # Dépendances et scripts
+├── server.js                   # Point d'entrée principal du serveur Express
+├── src/
+│   ├── models/
+│   │   └── Task.js             # Model : définit la classe Task
+│   ├── controllers/
+│   │   └── todoController.js   # Controller : logique métier (ajout, maj, suppression)
+│   ├── routes/
+│   │   └── taskRoutes.js       # Routes : gère les endpoints de l’API
+│   └── config/
+│       └── db.js               # Connexion PostgreSQL (pg Pool)
+├── package.json                # Dépendances et scripts
+├── .env                        # Variables d’environnement (non commité)
 └── README.md
+
 ```
 
 ---
@@ -94,7 +129,7 @@ Le projet respecte le modèle **MVC (Model–View–Controller)** :
 | -------------- | ------------------------------------- | ------------------------------------------------- |
 | **Model**      | Gère les données et la logique métier | `Task`, structure et transformation des données   |
 | **View**       | (Non applicable ici) — pas d’IHM CLI  | Les réponses JSON remplacent la vue terminal      |
-| **Controller** | Fait le lien entre Model et Routes    | `ToDoController`, gère la logique de traitement   |
+| **Controller** | Fait le lien entre Model et Routes    | `ToDoController` (requêtes SQL via pg)   |
 
 
 ---
