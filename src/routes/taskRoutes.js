@@ -4,56 +4,47 @@ import { ToDoController } from "../controllers/todoController.js";
 const router = Router();
 const todo = new ToDoController();
 
-function tasks_with_index() {
-  const tasks = todo.list_tasks();
-  return tasks.map((t, i) => ({ index: i + 1, ...t.to_dict() }));
-}
+const asyncWrap = (fn) => (req, res, next) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
 
-// Vérification de l’état de l’API
-router.get("/health", (req, res) => {
+// Health
+router.get("/health", (_req, res) => {
   res.json({ status: "ok", message: "L'API fonctionne" });
 });
 
-// Liste toutes les tâches
-router.get("/api/tasks", (req, res) => {
-  res.json({ tasks: tasks_with_index() });
-});
+// helper pour ajouter l'index 1-based
+function withIndex(rows) {
+  return rows.map((t, i) => ({ index: i + 1, ...t }));
+}
 
-// Crée une nouvelle tâche
-router.post("/api/tasks", (req, res) => {
-  const data = req.body || {};
-  const title = data.title ?? "";
+// GET /api/tasks
+router.get("/api/tasks", asyncWrap(async (_req, res) => {
+  const tasks = await todo.list_tasks();
+  res.json({ tasks: withIndex(tasks) });
+}));
+
+// POST /api/tasks  { title }
+router.post("/api/tasks", asyncWrap(async (req, res) => {
   try {
-    const t = todo.add_task(title);
-    res.status(201).json({
-      message: "Tâche créée avec succès",
-      task: t.to_dict(),
-    });
+    const t = await todo.add_task((req.body || {}).title ?? "");
+    res.status(201).json({ message: "Tâche créée avec succès", task: t });
   } catch (e) {
-    if (e.code === "VALUE_ERROR") {
-      return res.status(400).json({ error: e.message });
-    }
-    console.error(e);
-    res.status(500).json({ error: "Erreur serveur" });
+    if (e.code === "VALUE_ERROR") return res.status(400).json({ error: e.message });
+    throw e;
   }
-});
+}));
 
 
-
-
-// Supprime une tâche par ID
-router.delete("/api/tasks/:task_id", (req, res) => {
-  const task_id = Number(req.params.task_id);
+// DELETE /api/tasks/:index
+router.delete("/api/tasks/:index", asyncWrap(async (req, res) => {
   try {
-    const title = todo.delete_task(task_id);
+    const title = await todo.delete_task(req.params.index);
     res.status(200).json({ message: `Tâche supprimée : ${title}` });
   } catch (e) {
-    if (e.code === "NOT_FOUND") {
-      return res.status(404).json({ error: `Tâche id=${task_id} introuvable.` });
-    }
-    console.error(e);
-    res.status(500).json({ error: "Erreur serveur" });
+    if (e.code === "NOT_FOUND")
+      return res.status(404).json({ error: `Tâche index=${req.params.index} introuvable.` });
+    throw e;
   }
-});
+}));
 
 export default router;
