@@ -1,29 +1,24 @@
+// src/routes/taskRoutes.js
 import { Router } from "express";
 import { ToDoController } from "../controllers/todoController.js";
+import { repo } from "../config/db.js";
 
 const router = Router();
-const todo = new ToDoController();
+const todo = new ToDoController(repo);
 
 const asyncWrap = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
-// Health
-router.get("/health", (_req, res) => {
-  res.json({ status: "ok", message: "L'API fonctionne" });
-});
+const withIndex = (rows) => rows.map((t, i) => ({ index: i + 1, ...t }));
 
-// helper pour ajouter l'index 1-based
-function withIndex(rows) {
-  return rows.map((t, i) => ({ index: i + 1, ...t }));
-}
+router.get("/health", (_req, res) =>
+  res.json({ status: "ok", message: "L'API fonctionne" })
+);
 
-// GET /api/tasks
 router.get("/api/tasks", asyncWrap(async (_req, res) => {
-  const tasks = await todo.list_tasks();
-  res.json({ tasks: withIndex(tasks) });
+  res.json({ tasks: withIndex(await todo.list_tasks()) });
 }));
 
-// POST /api/tasks  { title }
 router.post("/api/tasks", asyncWrap(async (req, res) => {
   try {
     const t = await todo.add_task((req.body || {}).title ?? "");
@@ -34,15 +29,12 @@ router.post("/api/tasks", asyncWrap(async (req, res) => {
   }
 }));
 
-
-// DELETE /api/tasks/:index
 router.delete("/api/tasks/:index", asyncWrap(async (req, res) => {
   try {
     const title = await todo.delete_task(req.params.index);
     res.status(200).json({ message: `Tâche supprimée : ${title}` });
   } catch (e) {
-    if (e.code === "NOT_FOUND")
-      return res.status(404).json({ error: `Tâche index=${req.params.index} introuvable.` });
+    if (e.code === "NOT_FOUND") return res.status(404).json({ error: `Tâche index=${req.params.index} introuvable.` });
     throw e;
   }
 }));
