@@ -4,7 +4,36 @@ const provider = (process.env.DB_PROVIDER || 'postgres').toLowerCase();
 
 let repo;
 
-if (provider === 'mongo') {
+// MEMORY (tests)
+if (provider === 'memory') {
+  const store = []; // {title, created_at}
+  repo = {
+    async list() {
+      return store
+        .slice()
+        .sort((a, b) => a.created_at.localeCompare(b.created_at));
+    },
+    async create(title) {
+      const created_at = new Date().toISOString().slice(0,19).replace('T',' ');
+      const row = { title, created_at };
+      store.push(row);
+      return row;
+    },
+    async delete(index1) {
+      const i0 = Number(index1) - 1;
+      const sorted = store
+        .slice()
+        .sort((a, b) => a.created_at.localeCompare(b.created_at));
+      const item = sorted[i0];
+      if (!item) return null;
+      const pos = store.findIndex(r => r.title === item.title && r.created_at === item.created_at);
+      const [removed] = store.splice(pos, 1);
+      return removed.title;
+    }
+  };
+  console.log('Repo mémoire actif');
+}
+else if (provider === 'mongo') {
   // MONGO 
   const { default: mongoose } = await import('mongoose');
 
