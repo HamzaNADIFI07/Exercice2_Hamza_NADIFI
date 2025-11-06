@@ -1,4 +1,3 @@
-// src/config/db.js
 import 'dotenv/config';
 
 const provider = (process.env.DB_PROVIDER || 'postgres').toLowerCase();
@@ -6,7 +5,7 @@ const provider = (process.env.DB_PROVIDER || 'postgres').toLowerCase();
 let repo;
 
 if (provider === 'mongo') {
-  // --- MONGO ---
+  // MONGO 
   const { default: mongoose } = await import('mongoose');
 
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/todo';
@@ -47,7 +46,8 @@ if (provider === 'mongo') {
 
   console.log('✅ MongoDB connecté');
 } else {
-  // --- POSTGRES ---
+
+  // POSTGRES 
   const { default: pg } = await import('pg');
   const { Pool } = pg;
 
