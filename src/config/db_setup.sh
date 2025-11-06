@@ -12,11 +12,11 @@ DB_PORT="${DB_PORT:-5432}"
 
 # Vérif disponibilité
 while ! pg_isready -h "$DB_HOST" -p "$DB_PORT" >/dev/null 2>&1; do
-  echo "❌ Aucune instance PostgreSQL sur $DB_HOST:$DB_PORT"
+  echo "Aucune instance PostgreSQL sur $DB_HOST:$DB_PORT"
   read -rp "Réessaie - Host [127.0.0.1]: " DB_HOST; DB_HOST="${DB_HOST:-127.0.0.1}"
   read -rp "Réessaie - Port [5432]: " DB_PORT; DB_PORT="${DB_PORT:-5432}"
 done
-echo "✅ PostgreSQL disponible sur $DB_HOST:$DB_PORT"
+echo "PostgreSQL disponible sur $DB_HOST:$DB_PORT"
 
 # Superuser local
 PG_SUPERUSER="${PG_SUPERUSER:-$(whoami)}"
@@ -81,6 +81,6 @@ DATABASE_URL=${DATABASE_URL}
 EOF
 
 echo
-echo "✅ Base prête."
+echo "Base prête."
 echo ".env mis à jour avec :"
 grep -E '^(PORT|NODE_ENV|DB_PROVIDER|DATABASE_URL)=' .env

@@ -44,7 +44,7 @@ if (provider === 'mongo') {
     }
   };
 
-  console.log('✅ MongoDB connecté');
+  console.log('MongoDB connecté');
 } else {
 
   // POSTGRES 
@@ -98,7 +98,7 @@ if (provider === 'mongo') {
     }
   };
 
-  console.log('✅ PostgreSQL connecté');
+  console.log('PostgreSQL connecté');
 }
 
 export { repo };
