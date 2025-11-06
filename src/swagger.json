@@ -1,0 +1,158 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ToDoList API",
+      "version": "1.0.0",
+      "description": "API REST pour gérer une liste de tâches (PostgreSQL ou MongoDB)."
+    },
+    "servers": [
+      { "url": "http://127.0.0.1:5050", "description": "Local" }
+    ],
+    "paths": {
+      "/health": {
+        "get": {
+          "summary": "Vérifier l’état du serveur",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": { "type": "string" },
+                      "message": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/tasks": {
+        "get": {
+          "summary": "Lister les tâches",
+          "responses": {
+            "200": {
+              "description": "Liste des tâches",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "tasks": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TaskWithIndex" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Créer une tâche",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["title"],
+                  "properties": { "title": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Tâche créée",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" },
+                      "task": { "$ref": "#/components/schemas/Task" }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Titre invalide",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/Error" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/tasks/{index}": {
+        "delete": {
+          "summary": "Supprimer une tâche par index (1-based)",
+          "parameters": [
+            {
+              "name": "index",
+              "in": "path",
+              "required": true,
+              "schema": { "type": "integer", "minimum": 1 }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Tâche supprimée",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": { "message": { "type": "string" } }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Introuvable",
+              "content": {
+                "application/json": {
+                  "schema": { "$ref": "#/components/schemas/Error" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Task": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "created_at": { "type": "string", "example": "2025-11-06 12:34:56" }
+          }
+        },
+        "TaskWithIndex": {
+          "allOf": [
+            { "$ref": "#/components/schemas/Task" },
+            {
+              "type": "object",
+              "properties": { "index": { "type": "integer", "minimum": 1 } }
+            }
+          ]
+        },
+        "Error": {
+          "type": "object",
+          "properties": {
+            "error": { "type": "string" },
+            "path": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+  
