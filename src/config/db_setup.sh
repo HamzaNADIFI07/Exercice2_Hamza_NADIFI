@@ -1,7 +1,7 @@
 set -euo pipefail
 echo "=== PostgreSQL setup (local, sans Docker) ==="
 
-# Ne jamais hériter de variables PG* parasites
+# Ne jamais hériter de variables parasites
 unset PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD PGSSLMODE
 
 # --- Host / Port ---
@@ -28,7 +28,7 @@ read -rp "Nom de la base [default: todo]: " DBNAME
 DBNAME="${DBNAME:-todo}"
 read -srp "Mot de passe pour '${DBUSER}': " DBPASS; echo
 
-echo "🔎 Connexion superuser: $PG_SUPERUSER@$DB_HOST:$DB_PORT (db=postgres)"
+echo "‡Connexion superuser: $PG_SUPERUSER@$DB_HOST:$DB_PORT (db=postgres)"
 
 # 1) Créer/mettre à jour le rôle
 psql "host=$DB_HOST port=$DB_PORT user=$PG_SUPERUSER dbname=postgres" -v ON_ERROR_STOP=1 <<SQL
@@ -82,5 +82,5 @@ EOF
 
 echo
 echo "✅ Base prête."
-echo "👉 .env mis à jour avec :"
+echo ".env mis à jour avec :"
 grep -E '^(PORT|NODE_ENV|DB_PROVIDER|DATABASE_URL)=' .env
