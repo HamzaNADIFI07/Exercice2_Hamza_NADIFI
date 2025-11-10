@@ -1,7 +1,12 @@
-export class Task {
-  constructor({ title, created_at = null }) {
-    this.title = (title || "").trim();
-    this.created_at =
-      created_at || new Date().toISOString().slice(0, 19).replace("T", " ");
-  }
-}
+import mongoose from "mongoose";
+
+const TaskSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    created_at: { type: Date, default: Date.now }
+  },
+  { versionKey: false }
+);
+
+export default mongoose.model("Task", TaskSchema);
