@@ -1,5 +1,5 @@
 set -euo pipefail
-echo "=== PostgreSQL setup (local, sans Docker) ==="
+echo "=== PostgreSQL setup (local) ==="
 
 # Ne jamais hériter de variables parasites
 unset PGHOST PGPORT PGDATABASE PGUSER PGPASSWORD PGSSLMODE
@@ -58,6 +58,7 @@ if [[ ! -f "$SCHEMA_FILE" ]]; then
   cat > "$SCHEMA_FILE" <<'EOSQL'
 CREATE TABLE IF NOT EXISTS tasks (
   id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
   title TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -71,16 +72,47 @@ export PGPASSWORD="$DBPASS"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DBUSER" -d "$DBNAME" -v ON_ERROR_STOP=1 -f "$SCHEMA_FILE"
 unset PGPASSWORD
 
-# 6) Mettre à jour .env
+#                        AJOUTS AUTH (MongoDB + JWT)                           #
+
+# MONGODB_URI_AUTH (auth toujours sur MongoDB)
+read -rp "URI MongoDB pour AUTH [default: mongodb://127.0.0.1:27017/todo_auth]: " MONGO_AUTH_URI
+MONGO_AUTH_URI="${MONGO_AUTH_URI:-mongodb://127.0.0.1:27017/todo_auth}"
+
+# JWT_SECRET (généré si vide)
+read -rp "JWT secret (laisser vide pour générer aléatoirement): " JWT_SECRET_INPUT || true
+if [[ -z "${JWT_SECRET_INPUT:-}" ]]; then
+  if command -v openssl >/dev/null 2>&1; then
+    JWT_SECRET_INPUT="$(openssl rand -hex 32)"
+  else
+    # fallback simple si openssl absent
+    JWT_SECRET_INPUT="$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 64 || true)"
+  fi
+  echo "→ JWT_SECRET généré."
+fi
+
+# JWT_EXPIRES
+read -rp "Durée d'expiration JWT [default: 1h]: " JWT_EXPIRES
+JWT_EXPIRES="${JWT_EXPIRES:-1h}"
+
+# 6) Mettre à jour .env 
 DATABASE_URL="postgres://${DBUSER}:${DBPASS}@${DB_HOST}:${DB_PORT}/${DBNAME}"
 cat > ./.env <<EOF
 PORT=5050
 NODE_ENV=development
+
+# Provider choisi pour les TASKS
 DB_PROVIDER=postgres
 DATABASE_URL=${DATABASE_URL}
+
+# AUTH (toujours MongoDB)
+MONGODB_URI_AUTH=${MONGO_AUTH_URI}
+
+# JWT
+JWT_SECRET=${JWT_SECRET_INPUT}
+JWT_EXPIRES=${JWT_EXPIRES}
 EOF
 
 echo
 echo "Base prête."
 echo ".env mis à jour avec :"
-grep -E '^(PORT|NODE_ENV|DB_PROVIDER|DATABASE_URL)=' .env
+grep -E '^(PORT|NODE_ENV|DB_PROVIDER|DATABASE_URL|MONGODB_URI_AUTH|JWT_SECRET|JWT_EXPIRES)=' .env
